@@ -22,20 +22,10 @@
 #define MON30 2592000
 #define MON29 2505600
 #define MON28 2419200
-#define IS_LEAP_YEAR(year) year % 4 == 0 && ( (year % 100 != 0) || ((year % 100 == 0) && year % 400 == 0) )
+#define IS_LEAP_YEAR(year) (year % 4 == 0)
 #define DAY_S 86400
 #define HOUR_S 3600
 #define MIN_S 60
-
-const unsigned long seconds_per_month_no_leap[12] = {
-	MON31,	MON28,	MON31,	MON30,	MON31,	MON30,
-	MON31,	MON31,	MON30,	MON31,	MON30,	MON31
-};
-
-const unsigned long seconds_per_month_leap[12] = {
-	MON31,	MON29,	MON31,	MON30,	MON31,	MON30,
-	MON31,	MON31,	MON30,	MON31,	MON30,	MON31
-};
 
 typedef enum DayOfWeek{
 	sunday,
@@ -59,11 +49,22 @@ typedef struct TIME{
 	day_of_week_u dow;
 	uint16_t dom;
 	uint8_t mon;
-	uint8_t year;
+	uint16_t year;
 } TIME_t;
 
+typedef struct TIME_DELTA{
+	uint8_t seconds;
+	uint8_t mins;
+	uint8_t hours;
+	uint16_t days;
+	uint8_t months;
+	uint16_t years;
+} TIME_dt;
+
 uint64_t make_timestamp(TIME_t * t);
-TIME_t * timestamp_to_struct(uint64_t timestamp);
-void make_time(TIME_t * t, uint16_t year, uint8_t month, uint8_t hour, uint8_t min, uint8_t sec);
+TIME_t timestamp_to_struct(uint64_t timestamp);
+void make_time(TIME_t * t, uint16_t year, uint8_t month, uint8_t day_of_month, uint8_t hour, uint8_t min, uint8_t sec);
+void make_dtime(TIME_dt * dt, uint16_t years, uint8_t months, uint8_t days, uint8_t hours, uint8_t mins, uint8_t secs);
+void add_time(TIME_t * base, TIME_dt * a);
 
 #endif
