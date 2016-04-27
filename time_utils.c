@@ -61,6 +61,8 @@ uint64_t make_timestamp(TIME_t * t){
 
 TIME_t timestamp_to_struct(uint64_t timestamp){
 	TIME_t t;
+	uint16_t leap;
+	uint8_t yOff, m, d;
 
 	uint16_t year = 0;
 	uint8_t month = 0;
@@ -78,8 +80,6 @@ TIME_t timestamp_to_struct(uint64_t timestamp){
 	timestamp /= 60;
 	hour = timestamp % 24;
 	uint16_t days = timestamp / 24;
-	uint16_t leap;
-	uint8_t yOff, m, d;
 
 	for (yOff = 0; ; ++yOff) {
 		leap = yOff % 4 == 0;
@@ -97,83 +97,12 @@ TIME_t timestamp_to_struct(uint64_t timestamp){
 	}
 	d = days + 1;
 
-	/*
-
-	// Get seconds since beginning of the year (and find the current year)
-	while(1){
-		seconds_count += (year * YEAR_S) + IS_LEAP_YEAR(year)? DAY_S : 0;
-		if (seconds_count > timestamp){
-			break;
-		}
-		last_seconds_count = seconds_count;
-		year++;
-	}
-
-	// Get seconds since the beginning of the month (and find current month)
-	unsigned long mon_seconds[12];
-	if(IS_LEAP_YEAR(year))
-		memcpy(mon_seconds, seconds_per_month_leap, sizeof(unsigned long) * 12);
-	else
-		memcpy(mon_seconds, seconds_per_month_no_leap, sizeof(unsigned long) * 12);
-
-	seconds_count = last_seconds_count;
-	last_seconds_count = 0;
-
-	while(1){
-		seconds_count += mon_seconds[month];
-		if(seconds_count > timestamp){
-			break;
-		}
-		month++;
-		last_seconds_count = seconds_count;
-	}
-
-	// Get seconds since the start of the day (and find day of month)
-	seconds_count = last_seconds_count;
-	last_seconds_count = 0;
-
-	while(1){
-		seconds_count += (day_of_month * DAY_S);
-		if(seconds_count > timestamp){
-			break;
-		}
-		day_of_month++;
-		last_seconds_count = seconds_count;
-	}
-
-	// Get seconds since the start of the current hour (and find current hour)
-	seconds_count = last_seconds_count;
-	last_seconds_count = 0;
-
-	while(1){
-		seconds_count += (hour * HOUR_S);
-		if(seconds_count > timestamp){
-			break;
-		}
-		hour++;
-		last_seconds_count = seconds_count;
-	}
-
-	seconds_count = last_seconds_count;
-	last_seconds_count = 0;
-
-	// Get seconds since the start of the current minute (and find the current minute)
-	while(1){
-		seconds_count += (minute * MIN_S);
-		if(seconds_count > timestamp){
-			break;
-		}
-		minute++;
-		last_seconds_count = seconds_count;
-	} */
-
-	t.year = yOff;
+	t.year = 1970 + yOff;
 	t.mon = m;
-	t.dom = d;
+	t.dom = d - 2;
 	t.hour = hour;
 	t.min = minute;
 	t.sec = seconds;
-
 
 	return t;
 }

@@ -27,6 +27,8 @@
 #define HOUR_S 3600
 #define MIN_S 60
 
+// TODO: make offset for timestamp - eg instead of starting at 1970, start at 2015
+
 typedef enum DayOfWeek{
 	sunday,
 	monday,
