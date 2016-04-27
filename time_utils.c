@@ -16,27 +16,22 @@ const uint8_t daysInMonth []  = { 31,28,31,30,31,30,31,31,30,31,30,31 };
 /* uint64_t make_timestamp(TIME_t * t)
  *
  * Takes a TIME_t data struct (date and time) and converts it into
- * seconds since Jan 1 1970.
+ * seconds since EPOCH_YR.
  *
  */
 
 uint64_t make_timestamp(TIME_t * t){
 
-	uint8_t i;
 	// final return value
 	uint64_t time_since_epoch = 0;
 
-	// convert year to years since Jan 1 1970
-	uint16_t year = t->year - 1970;
-	if(IS_LEAP_YEAR(t->year))
-		printf("It's a leap year..\n");
-
 	// Add seconds for this year since Jan 1 1970
 	uint16_t iy;
-	for(iy = 1970; iy < t->year; ++iy){
+	for(iy = EPOCH_YR; iy < t->year; ++iy){
 		time_since_epoch += YEAR_S + (IS_LEAP_YEAR(iy)? DAY_S : 0);
 	}
 
+	uint8_t i;
 	// Accumulatively add seconds per month since beginning of the year
 	for(i = 1; i < t->mon; i++){
 		time_since_epoch += daysInMonth[i-1] * DAY_S;
@@ -63,16 +58,9 @@ TIME_t timestamp_to_struct(uint64_t timestamp){
 	TIME_t t;
 	uint16_t leap;
 	uint8_t yOff, m, d;
-
-	uint16_t year = 0;
-	uint8_t month = 0;
-	uint8_t day_of_month = 0;
 	uint8_t hour = 0;
 	uint8_t minute = 0;
 	uint8_t seconds = 0;
-
-	uint64_t seconds_count = 0;
-	uint64_t last_seconds_count = 0;
 
 	seconds = timestamp % 60;
 	timestamp /= 60;
@@ -97,7 +85,7 @@ TIME_t timestamp_to_struct(uint64_t timestamp){
 	}
 	d = days + 1;
 
-	t.year = 1970 + yOff;
+	t.year = EPOCH_YR + yOff;
 	t.mon = m;
 	t.dom = d - 2;
 	t.hour = hour;
@@ -106,6 +94,8 @@ TIME_t timestamp_to_struct(uint64_t timestamp){
 
 	return t;
 }
+
+// TODO:? Add paramter var < 0 checking if needed
 void make_time(TIME_t * t, uint16_t year, uint8_t month, uint8_t day_of_month, uint8_t hour, uint8_t minute, uint8_t second){
 	t->year = year;
 	t->mon = month;
@@ -124,17 +114,45 @@ void make_dtime(TIME_dt * dt, uint16_t years, uint8_t months, uint8_t days, uint
 	dt->seconds = secs;
 }
 
+uint64_t add_months(TIME_t * t, uint64_t in, uint8_t months){
+
+	uint8_t i;
+
+	if(months > 12){
+		in = add_years(t, in, months / 12);
+		months = months % 12;
+	}
+
+	for(i = 0; i < months; i++){
+		in += daysInMonth[(t->mon - 1 + i) % 11] * DAY_S;
+	}
+
+	return in;
+}
+uint64_t add_years(TIME_t * t, uint64_t in, uint8_t years){
+	in += 365 * DAY_S;
+	// TODO: add extra days per leap year
+	// find next leap year - is the number of years equal or greater than the next leap year
+	// if so, add one day
+	// find the number of leap years after that (n)
+	// if so, add n days
+	return in;
+}
+
 void add_time(TIME_t * base, TIME_dt * a){
 	uint64_t t_stamp = make_timestamp(base);
-	printf("Current timestamp: %u\n", t_stamp);
+	printf("Current timestamp: %u\n", (unsigned int)t_stamp);
 	uint64_t delta_s = 0;
 
 	if (a->years > 0){
-		printf("Years addition not implemented yet!\n");
+		printf("Years addition not completely implemented yet!\n");
+		delta_s = add_years(base, delta_s, a->years);
 	}
+
 	if(a->months > 0){
-		printf("Months addition not implemented yet!\n");
+		delta_s = add_months(base, delta_s, a->months);
 	}
+
 	delta_s += a->days * DAY_S;
 	delta_s += a->hours * HOUR_S;
 	delta_s += a->mins * MIN_S;
