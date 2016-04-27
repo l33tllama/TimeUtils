@@ -40,7 +40,7 @@ uint64_t make_timestamp(TIME_t * t){
 	}
 
 	// add seconds for each day per month
-	time_since_epoch += (1 + t->dom) * DAY_S;
+	time_since_epoch += (t->dom) * DAY_S;
 
 	// add seconds per hour in the day
 	time_since_epoch += t->hour * HOUR_S;
@@ -52,6 +52,83 @@ uint64_t make_timestamp(TIME_t * t){
 	time_since_epoch += t->sec;
 
 	return time_since_epoch;
+}
+
+TIME_t timestamp_to_struct_v2(uint64_t timestamp){
+	TIME_t t;
+	uint16_t year;
+	uint8_t month;
+	uint8_t day;
+	uint8_t hour;
+	uint8_t minute;
+	uint8_t second;
+	uint64_t sec_c = 0;
+	uint64_t last_sec_c = EPOCH_YR;
+
+	// find what year it is
+	for(year = EPOCH_YR; ; year++){
+		sec_c += YEAR_S;
+		if(IS_LEAP_YEAR(year)){
+			sec_c += DAY_S;
+		}
+		if(sec_c > timestamp)
+			break;
+		last_sec_c = sec_c;
+	}
+	sec_c = last_sec_c;
+	// sec_c is now the seconds from EPOCH_YR to current year in timestamp
+
+	// find what month it is
+	for(month = 1; ; month++){
+		sec_c += daysInMonth[(month - 1) % 11] * DAY_S;
+		if(month == 2 && IS_LEAP_YEAR(year))
+			sec_c += DAY_S;
+		if(sec_c > timestamp)
+			break;
+		last_sec_c = sec_c;
+	}
+	sec_c = last_sec_c;
+	// sec_c is now the seconds from EPOCH_YR to current year plus current month
+
+	// find what day it is
+	for(day = 0; ; day++){
+		sec_c += DAY_S;
+		if(sec_c > timestamp)
+			break;
+		last_sec_c = sec_c;
+	}
+	sec_c = last_sec_c;
+	// sec_c is now the seconds from EPOCH_YR to current year plus current month
+	// plus current day
+
+	// find what hour it is
+	for(hour = 0; ;hour++){
+		sec_c += HOUR_S;
+		if(sec_c > timestamp)
+			break;
+		last_sec_c = sec_c;
+	}
+	sec_c = last_sec_c;
+	// sec_c is now the seconds from EPOCH_YR to current year plus current month
+	// plus current day plus current hour
+
+	// find what minute it is
+	for(minute = 0; ;minute++){
+		sec_c += MIN_S;
+		if(sec_c > timestamp)
+			break;
+		last_sec_c = sec_c;
+	}
+
+	second = timestamp - last_sec_c;
+	t.year = year;
+	t.mon = month;
+	t.dom = day;
+	t.hour = hour;
+	t.min = minute;
+	t.sec = second;
+
+	return t;
 }
 
 TIME_t timestamp_to_struct(uint64_t timestamp){
@@ -160,5 +237,5 @@ void add_time(TIME_t * base, TIME_dt * a){
 	delta_s += a->seconds;
 	printf("New timestamp    : %u\n", (unsigned int) (t_stamp + delta_s));
 
-	(*base) = timestamp_to_struct(t_stamp + delta_s);
+	(*base) = timestamp_to_struct_v2(t_stamp + delta_s);
 }

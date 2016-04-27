@@ -1,5 +1,5 @@
-#ifndef TIME_UTILS_H
-#define TIME_UTILS_H
+#ifndef TIME_UTILS_H_
+#define TIME_UTILS_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -61,8 +61,11 @@ typedef struct TIME_DELTA{
 } TIME_dt;
 
 TIME_t timestamp_to_struct(uint64_t timestamp);
+TIME_t timestamp_to_struct_v2(uint64_t timestamp);
 
 uint64_t make_timestamp(TIME_t * t);
+
+
 uint64_t add_months(TIME_t * t, uint64_t in, uint8_t months);
 uint64_t add_years(TIME_t * t, uint64_t in, uint8_t years);
 
