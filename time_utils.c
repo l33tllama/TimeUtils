@@ -129,6 +129,7 @@ uint64_t add_months(TIME_t * t, uint64_t in, uint8_t months){
 
 	return in;
 }
+
 uint64_t add_years(TIME_t * t, uint64_t in, uint8_t years){
 	in += 365 * DAY_S;
 	// TODO: add extra days per leap year
@@ -157,7 +158,7 @@ void add_time(TIME_t * base, TIME_dt * a){
 	delta_s += a->hours * HOUR_S;
 	delta_s += a->mins * MIN_S;
 	delta_s += a->seconds;
-	printf("New timestamp    : %u\n", t_stamp + delta_s);
+	printf("New timestamp    : %u\n", (unsigned int) (t_stamp + delta_s));
 
 	(*base) = timestamp_to_struct(t_stamp + delta_s);
 }
