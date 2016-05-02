@@ -29,19 +29,15 @@ uint32_t make_timestamp(TIME_t * t){
 	uint16_t iy;
 	for(iy = EPOCH_YR; iy < t->year; ++iy){
 		time_since_epoch += YEAR_S + (IS_LEAP_YEAR(iy)? DAY_S : 0);
-		printf("adding year %d\n", iy);
-		if(IS_LEAP_YEAR(iy))
-			printf("Adding extra day to leap year\n");
 	}
 
 	uint8_t i;
 	// Accumulatively add seconds per month since beginning of the year
 	for(i = 1; i < t->mon; i++){
 		time_since_epoch += daysInMonth[i-1] * DAY_S;
-		printf("Adding month %d which has %d days\n", i, daysInMonth[i-1] );
+
 		if(IS_LEAP_YEAR(t->year) && i == 2){
 			time_since_epoch += DAY_S;
-			printf("Adding extra day for leap year\n");
 		}
 
 	}
